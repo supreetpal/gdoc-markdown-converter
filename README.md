@@ -29,7 +29,7 @@ available inside the doc.
  
 ## CONTRIBUTORS
 
-* Supreet Pal Singh - supreetpal.in
+* Supreet Pal Singh - http://supreetpal.in
 * Siva Subramanium - [Github](//github.com/subramaniashiva)
 
 ## CREDITS
