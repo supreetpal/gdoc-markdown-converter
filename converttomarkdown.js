@@ -14,47 +14,36 @@ Usage:
 /* Made as a singelton, so that all the function who wants to get/set common folder act on single set of data */
 var config = (function() {
 
-    //This line gets the user properties for the sheets. So the value of common folder can be different for different users of this plugin
-  var scriptProperties = PropertiesService.getUserProperties();
-  
-  var instance = {};
-  
-  //Change this value to change the default output folder. This value can be overridden by user at any time using 'Change Output Folder' menu
-  var defaultOutputFolder = "Google Docs to Markdown";
-  
-  
-  //Setting the intial value of common folder if not present
-  if (typeof scriptProperties.getProperty('COMMON_FOLDER') == 'undefined' || scriptProperties.getProperty('COMMON_FOLDER') == null || scriptProperties.getProperty('COMMON_FOLDER') == "")
-  scriptProperties.setProperty('COMMON_FOLDER', defaultOutputFolder); // Changing this value affects the default common folder name
-  
-  instance.getDefaultOutputFolder = function() {
-    return defaultOutputFolder;
-  }
-  
-  //Function for getting the current common folder value
-  instance.getCommonFolder = function() {
-    return scriptProperties.getProperty('COMMON_FOLDER');
-  }
-  
-  //Function for setting the current common folder value
-  instance.setCommonFolder = function(folderName) {
-    scriptProperties.setProperty('COMMON_FOLDER', folderName);
-  }
-  
-  function createInstance() {
-    var object = new Object();
-    return object;
-  }
-  
-  return {
-    getInstance: function() {
-      if (!instance) {
-        instance = createInstance();
-      }
-      
-      return instance;
+    var instance = {};
+
+    instance.getDefaultOutputFolder = function() {
+        return PropertiesService.getUserProperties().getProperty("DEFAULT_OUTPUT_FOLDER");
     }
-  };
+
+    //Function for getting the current common folder value
+    instance.getCommonFolder = function() {
+        return PropertiesService.getUserProperties().getProperty('COMMON_FOLDER');
+    }
+
+    //Function for setting the current common folder value
+    instance.setCommonFolder = function(folderName) {
+        PropertiesService.getUserProperties().setProperty('COMMON_FOLDER', folderName);
+    }
+
+    function createInstance() {
+        var object = new Object();
+        return object;
+    }
+
+    return {
+        getInstance: function() {
+            if (!instance) {
+                instance = createInstance();
+            }
+
+            return instance;
+        }
+    };
 })();
 /**
  * Creates a menu entry in the Google Docs UI when the document is opened.
@@ -81,10 +70,21 @@ function onOpen(e) {
  *     AuthMode.NONE.)
  */
 function onInstall(e) {
-  //When the document is first installed, clear out the user preferences set already
-  var scriptProperties = PropertiesService.getUserProperties();
-  scriptProperties.deleteProperty('COMMON_FOLDER');
-  onOpen(e);
+    //When the document is first installed, clear out the user preferences set already
+    var scriptProperties = PropertiesService.getUserProperties();
+
+    //Change this value to change the default output folder. This value can be overridden by user at any time using 'Change Output Folder' menu
+    var defaultOutputFolder = "Google Docs to Markdown";
+
+    //Setting the intial value of common folder if not present
+    //if (typeof scriptProperties.getProperty('DEFAULT_OUTPUT_FOLDER') == 'undefined' || scriptProperties.getProperty('DEFAULT_OUTPUT_FOLDER') == null || scriptProperties.getProperty('DEFAULT_OUTPUT_FOLDER') === "")
+    scriptProperties.setProperty('DEFAULT_OUTPUT_FOLDER', defaultOutputFolder); // Changing this value affects the default common folder name
+
+    //Setting the intial value of common folder if not present
+    //if (typeof scriptProperties.getProperty('COMMON_FOLDER') == 'undefined' || scriptProperties.getProperty('COMMON_FOLDER') == null || scriptProperties.getProperty('COMMON_FOLDER') == "")
+    scriptProperties.setProperty('COMMON_FOLDER', defaultOutputFolder); // Changing this value affects the common folder name
+
+    onOpen(e);
 }
 
 function doGet() {
@@ -201,10 +201,14 @@ function ConvertToMarkdown() {
                     image_name = "image_" + iterator + "." + suffix;
                     photo = checkIfFileExists(folder, image_name);
                     if (photo) {
-                        //photo.setTrashed(true);
-                        //photo = folder.createFile(blob);
-                        Drive.Files.remove(photo.getId());
+                        photo.setTrashed(true);
                         photo = folder.createFile(blob);
+                        //try {
+                        //Drive.Files.remove(photo.getId());
+                        //}
+                        //catch (e) {
+                        //DocsList.getFileById(photo.getId()).setTrashed(true);
+                        //}
                     } else {
                         photo = folder.createFile(blob);
                     }
@@ -268,7 +272,7 @@ function changeOutputFolder() {
 
     var result = ui.prompt(
         'Output Folder',
-        'Default output folder for converted markdowns is \"' + config.getInstance().getDefaultOutputFolder() + '\". ' + '\nCurrent output folder for converted markdown is \"' + config.getInstance().getCommonFolder() +'\".\n\n',
+        'Default output folder for converted markdowns is \"' + config.getInstance().getDefaultOutputFolder() + '\". ' + '\nCurrent output folder for converted markdown is \"' + config.getInstance().getCommonFolder() + '\".\n\n',
 
         ui.ButtonSet.OK_CANCEL);
     // Process the user's response.
