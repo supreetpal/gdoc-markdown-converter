@@ -9,7 +9,7 @@ available inside the doc.
     * Open any google document from your drive that can be converted into an MD file
     * Click on Tools -> Script Editor
     * Click on "Blank Project"
-    * Delete all the contents in the file code.gs and paste all the contents from converttomarkdown.gapps file
+    * Delete all the contents in the file code.gs and paste all the contents from converttomarkdown.js file
     * Save the project and the file
     * There will be a drop down saying "Select Function"
     * Select the function "ConvertToMarkDown" from the drop down.
