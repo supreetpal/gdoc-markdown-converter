@@ -167,9 +167,9 @@ function ConvertToMarkdown() {
 
         //Checking if the common folder is present in user's google drive. If not creating it.
         if (checkIfFolderExists(commonFolderName)) {
-            commonFolder = DocsList.getFolder(commonFolderName);
+            commonFolder = DriveApp.getFolderByName(commonFolderName);
         } else {
-            commonFolder = DocsList.createFolder(commonFolderName);
+            commonFolder = DriveApp.createFolder(commonFolderName);
         }
 
         //Checking if a folder with the current file name is present within the common folder. If not creating it.
@@ -184,8 +184,8 @@ function ConvertToMarkdown() {
         if (file) {
             file.replace(text);
         } else {
-            file = DocsList.createFile(DocumentApp.getActiveDocument().getName() + ".md", text, 'text/plain');
-            file.addToFolder(folder);
+            file = DriveApp.createFile(DocumentApp.getActiveDocument().getName() + ".md", text, 'text/plain');
+            folder.addFile(file);
         }
 
         //If there are any attachments in the file, it has to be saved in the same directory.
@@ -207,12 +207,12 @@ function ConvertToMarkdown() {
                         //Drive.Files.remove(photo.getId());
                         //}
                         //catch (e) {
-                        //DocsList.getFileById(photo.getId()).setTrashed(true);
+                        //DriveApp.getFileById(photo.getId()).setTrashed(true);
                         //}
                     } else {
                         photo = folder.createFile(blob);
                     }
-                    photo.rename(image_name);
+                    photo.setName(image_name);
                 } catch (e) {
                     throw ("Error in saving attached images : " + e);
                 }
@@ -259,7 +259,7 @@ function downloadMdFile() {
 function checkIfFolderExists(folderName) {
     var exist = true;
     try {
-        var testFolder = DocsList.getFolder(folderName);
+        var testFolder = DriveApp.getFolderByName(folderName);
     } catch (err) {
         exist = false;
     }
@@ -320,7 +320,7 @@ function checkIfFolderExistsInParent(parentFolder, folderName) {
 function checkIfFileExists(folder, fileName) {
     var exist = true;
     try {
-        //var testFolder = DocsList.getFolder(folderName);
+        //var testFolder = DriveApp.getFolder(folderName);
         var testFile = folder.find(fileName);
         if (testFile.length > 0)
             exist = testFile[0];
