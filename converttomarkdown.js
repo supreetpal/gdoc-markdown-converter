@@ -167,7 +167,8 @@ function ConvertToMarkdown() {
 
         //Checking if the common folder is present in user's google drive. If not creating it.
         if (checkIfFolderExists(commonFolderName)) {
-            commonFolder = DriveApp.getFolderByName(commonFolderName);
+            folderIter = DriveApp.getFoldersByName(commonFolderName);
+            commonFolder = folderIter.next();
         } else {
             commonFolder = DriveApp.createFolder(commonFolderName);
         }
@@ -184,7 +185,7 @@ function ConvertToMarkdown() {
         if (file) {
             file.replace(text);
         } else {
-            file = DriveApp.createFile(DocumentApp.getActiveDocument().getName() + ".md", text, 'text/plain');
+            file = folder.createFile(DocumentApp.getActiveDocument().getName() + ".md", text, 'text/plain');
             folder.addFile(file);
         }
 
@@ -259,7 +260,8 @@ function downloadMdFile() {
 function checkIfFolderExists(folderName) {
     var exist = true;
     try {
-        var testFolder = DriveApp.getFolderByName(folderName);
+        var testFolder = DriveApp.getFoldersByName(folderName);
+        exist = testFolder.hasNext()
     } catch (err) {
         exist = false;
     }
@@ -303,12 +305,12 @@ function checkIfFolderExistsInParent(parentFolder, folderName) {
         if (folderCollection.length == 0)
             exist = false;
         else {
-            for (var i = 0; i < folderCollection.length; i++) {
-                if (folderCollection[i].getName() == folderName) {
-                    exist = folderCollection[i];
-                    return exist;
-                }
-            }
+           while (folderCollection.hasNext()) {
+             childFolder = folderCollection.next()
+             if (childFolder.getName() == folderName) {
+               return childFolder
+             }
+           }
         }
         exist = false;
     } catch (err) {
