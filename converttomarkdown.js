@@ -183,7 +183,7 @@ function ConvertToMarkdown() {
         //Checking if MD file with same name is already present inside that folder. If present it will override the older file. If not it will create the new file.
         file = checkIfFileExists(folder, DocumentApp.getActiveDocument().getName() + ".md");
         if (file) {
-            file.replace(text);
+            file.setContent(text);
         } else {
             file = folder.createFile(DocumentApp.getActiveDocument().getName() + ".md", text, 'text/plain');
             folder.addFile(file);
@@ -258,10 +258,11 @@ function downloadMdFile() {
 
 /* This function checks if there is a folder as given in the parameter exists in Google Drive */
 function checkIfFolderExists(folderName) {
-    var exist = true;
+    var exist = false;
     try {
         var testFolder = DriveApp.getFoldersByName(folderName);
-        exist = testFolder.hasNext()
+        if testFolder.hasNext()
+            exist = testFolder.next()
     } catch (err) {
         exist = false;
     }
@@ -320,14 +321,19 @@ function checkIfFolderExistsInParent(parentFolder, folderName) {
 }
 /* This function checks if there is a file as given in the parameter exists in Google Drive */
 function checkIfFileExists(folder, fileName) {
-    var exist = true;
+    var exist = false;
+    
     try {
-        //var testFolder = DriveApp.getFolder(folderName);
-        var testFile = folder.find(fileName);
-        if (testFile.length > 0)
-            exist = testFile[0];
-        else
-            exist = false;
+        var testFileIter = folder.getFilesByName(fileName);
+        if (!testFileIter.hasNext())  {
+            return false
+        }
+        var testFile = testFileIter.next()
+        if (testFile.getSize() > 0) {
+            exist = testFile;
+        } 
+        Logger.log("file size not > 0 : " + testFile.getSize());
+        exist = false;
     } catch (err) {
         exist = false;
     }
